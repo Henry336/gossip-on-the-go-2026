@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { 
   Card, 
@@ -33,30 +33,21 @@ function Home() {
 
   const [editId, setEditId] = useState<number | null>(null)
 
-  // Re-fetch whenever URL ID changes (basically made URL ID the dependency)
-  useEffect(() => {
-    // 1. Always start with the base endpoint
+  const fetchPosts = useCallback(() => {
     let url = API_BASE_URL + "/posts";
-
-    // 2. If a specific topic is selected, append the query parameter
-    // NTS: BEWARE the following. Took a very long time to locate the error
-    // CORRECT: /posts?topic_id=2
-    // WRONG:   /2/posts  <-- This was causing the 404/CORS error
-    if (currentTopicId !== null) {
+    if (currentTopicId != null) {
       url += `?topic_id=${currentTopicId}`;
     }
-
-    console.log("Fetching from:", url); // Debugging helper
-
     fetch(url)
-      .then(response => {
-        if (!response.ok) throw new Error("Network response was not ok");
-        return response.json();
-      })
+      .then(res => res.json())
       .then(data => setPosts(data || []))
-      .catch(error => console.error("Error fetching data:", error))
-  }, [currentTopicId]) // Dependency added to re-run useeffect whenever topic id changes
+      .catch(err => console.error(err));
+  }, [currentTopicId]);
 
+  // Re-fetch whenever URL ID changes (basically made URL ID the dependency)
+  useEffect(() => {
+    fetchPosts(); 
+  }, [fetchPosts]); // fetchPosts is a dependency because it's wrapped in useCallback
 
   const handleCreateOpen = () => {
     setEditId(null); 
@@ -103,7 +94,7 @@ function Home() {
       .then((response) => {
         if (response.ok) {
           setOpen(false);
-          window.location.reload();
+          fetchPosts();
         } else {
           alert("Failed to save post");
         }
@@ -122,14 +113,13 @@ function Home() {
     })
     .then((response) => {
       if (response.ok) {
-        window.location.reload();
+        fetchPosts();
       } else {
         alert("Failed to delete post");
       }
     })
     .catch((error) => console.error("Error:", error));
   };
-
 
   return (
     <div style={{ padding: "40px" }}>
