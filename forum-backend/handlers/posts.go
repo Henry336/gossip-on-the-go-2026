@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -43,7 +44,20 @@ func PostsHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Case 2: Get all posts (/posts)
 	if r.Method == "GET" {
-		rows, err := database.DB.Query("SELECT id, topic_id, title, description, username, created_at FROM posts")
+		// Check if the URL has a ?topic_id= query parameter
+		topicID := r.URL.Query().Get("topic_id")
+
+		var rows *sql.Rows
+		var err error
+
+		if topicID != "" {
+			// FILTERED: User wants posts for a specific topic
+			rows, err = database.DB.Query("SELECT id, topic_id, title, description, username, created_at FROM posts WHERE topic_id = $1 ORDER BY created_at DESC", topicID)
+		} else {
+			// ALL: User wants everything
+			rows, err = database.DB.Query("SELECT id, topic_id, title, description, username, created_at FROM posts ORDER BY created_at DESC")
+		}
+
 		if err != nil {
 			fmt.Println("SQL Error:", err)
 			http.Error(w, "Database error", 500)
