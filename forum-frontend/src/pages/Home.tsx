@@ -33,13 +33,24 @@ function Home() {
 
   // Re-fetch whenever URL ID changes (basically made URL ID the dependency)
   useEffect(() => {
+    // 1. Always start with the base endpoint
     let url = API_BASE_URL + "/posts";
 
-    if (currentTopicId != null) {
-      url = API_BASE_URL + `/${currentTopicId}/posts`
+    // 2. If a specific topic is selected, append the query parameter
+    // NTS: BEWARE the following. Took a very long time to locate the error
+    // CORRECT: /posts?topic_id=2
+    // WRONG:   /2/posts  <-- This was causing the 404/CORS error
+    if (currentTopicId !== null) {
+      url += `?topic_id=${currentTopicId}`;
     }
+
+    console.log("Fetching from:", url); // Debugging helper
+
     fetch(url)
-      .then(response => response.json())
+      .then(response => {
+        if (!response.ok) throw new Error("Network response was not ok");
+        return response.json();
+      })
       .then(data => setPosts(data || []))
       .catch(error => console.error("Error fetching data:", error))
   }, [currentTopicId]) // Dependency added to re-run useeffect whenever topic id changes
