@@ -16,7 +16,7 @@ func CommentsHandler(w http.ResponseWriter, r *http.Request) {
 	parts := strings.Split(r.URL.Path, "/")
 	// NTS: Here, parts[0] = "", parts[1] = "posts", parts[2] = "ID", parts[3] = "comments"
 
-	if len(parts) < 3 {
+	if len(parts) < 4 {
 		http.Error(w, "Invalid URL", 400)
 		return
 	}
@@ -62,9 +62,9 @@ func CommentsHandler(w http.ResponseWriter, r *http.Request) {
 
 		c.PostId = postId
 		sqlStatement := `
-		INSERT INTO comments (content, post_id, username)
-		VALUES ($1, $2, $3) 
-		`
+        INSERT INTO comments (content, post_id, username)
+        VALUES ($1, $2, $3) 
+        `
 		_, err := database.DB.Exec(sqlStatement, c.Content, c.PostId, c.Username)
 		if err != nil {
 			fmt.Println("SQL Error:", err)
@@ -73,5 +73,42 @@ func CommentsHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		fmt.Fprintf(w, "Comment added to Post %v", postId)
 		return
+	}
+
+	// Case: Handle actions on a specific comment (/posts/{id}/comments/{comment_id})
+	if len(parts) == 5 {
+		commentId, err := strconv.Atoi(parts[4])
+		if err != nil {
+			http.Error(w, "Invalid Comment ID", 400)
+			return
+		}
+
+		// UPDATE comment
+		if r.Method == "PATCH" {
+			var c models.Comment
+			if err := json.NewDecoder(r.Body).Decode(&c); err != nil {
+				http.Error(w, "Invalid JSON", 400)
+				return
+			}
+
+			_, err := database.DB.Exec("UPDATE comments SET content = $1 WHERE id = $2", c.Content, commentId)
+			if err != nil {
+				http.Error(w, "Database error", 500)
+				return
+			}
+			fmt.Fprintf(w, "Comment updated")
+			return
+		}
+
+		// DELETE comment
+		if r.Method == "DELETE" {
+			_, err := database.DB.Exec("DELETE FROM comments WHERE id = $1", commentId)
+			if err != nil {
+				http.Error(w, "Database error", 500)
+				return
+			}
+			fmt.Fprintf(w, "Comment deleted")
+			return
+		}
 	}
 }

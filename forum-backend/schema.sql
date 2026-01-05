@@ -15,7 +15,7 @@ CREATE TABLE IF NOT EXISTS posts (
     id SERIAL PRIMARY KEY,
     title TEXT NOT NULL,
     description TEXT NOT NULL,
-    username TEXT DEFAULT 'Anonymous',
+    username TEXT,
     topic_id INTEGER REFERENCES topics(id) ON DELETE CASCADE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
