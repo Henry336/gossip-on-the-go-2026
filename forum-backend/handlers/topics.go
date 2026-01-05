@@ -95,10 +95,11 @@ func TopicsHandler(w http.ResponseWriter, r *http.Request) {
 
 		// DELETE TOPIC (DELETE)
 		if r.Method == "DELETE" {
-			// Step A: Delete all posts in this topic first (to avoid Foreign Key errors)
+			// Step A: Delete all comments under the post first (to avoid Foreign Key errors)
+			_, _ = database.DB.Exec("DELETE FROM comments WHERE post_id IN (SELECT id FROM posts WHERE topic_id = $1)", id)
+			// Step B: Delete all posts in this topic first (to avoid Foreign Key errors, again)
 			_, _ = database.DB.Exec("DELETE FROM posts WHERE topic_id = $1", id)
-
-			// Step B: Delete the topic itself
+			// Step C: Delete the topic itself
 			_, err := database.DB.Exec("DELETE FROM topics WHERE id = $1", id)
 			if err != nil {
 				http.Error(w, "Database error", 500)

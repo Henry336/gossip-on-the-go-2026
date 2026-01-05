@@ -148,7 +148,9 @@ func PostsHandler(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "Invalid ID", 400)
 			return
 		}
-
+		// First delete comments under the post
+		_, _ = database.DB.Exec("DELETE FROM comments WHERE post_id = $1", id)
+		// Then delete the post
 		_, err = database.DB.Exec("DELETE FROM posts WHERE id = $1", id)
 		if err != nil {
 			http.Error(w, "Database error", 500)
