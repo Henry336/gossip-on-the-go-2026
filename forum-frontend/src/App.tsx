@@ -5,7 +5,8 @@ import PostDetail from './pages/PostDetail';
 import Login from './pages/Login';
 
 function App() {
-  // Check if we already have a user saved in the browser
+  
+  // Check there's already a user saved in the browser
   const [user, setUser] = useState<string | null>(localStorage.getItem("username"));
 
   const handleLogin = (username: string) => {
@@ -26,7 +27,7 @@ function App() {
   // IF LOGGED IN -> SHOW THE FORUM
   return (
     <Router>
-        {/* Optional: Add a logout button somewhere, or just clear cache to test */}
+        
         <div style={{ position: 'absolute', top: 10, right: 10, zIndex: 1000 }}>
              <span style={{ marginRight: 10, fontWeight: 'bold' }}>Hello, {user}!</span>
              <button onClick={handleLogout}>Logout</button>

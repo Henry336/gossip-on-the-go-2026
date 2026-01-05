@@ -15,6 +15,7 @@ import {
 } from '@mui/material'
 import { type Post } from '../types'
 import Sidebar from '../components/Sidebar'
+import { API_BASE_URL } from '../config';
 
 function Home() {
   // This is to get the topic ID from the URL (if it actually exist s)
@@ -32,10 +33,10 @@ function Home() {
 
   // Re-fetch whenever URL ID changes (basically made URL ID the dependency)
   useEffect(() => {
-    let url = "http://localhost:8080/posts";
+    let url = API_BASE_URL + "/posts";
 
     if (currentTopicId != null) {
-      url = `http://localhost:8080/topics/${currentTopicId}/posts`
+      url = API_BASE_URL + `/${currentTopicId}/posts`
     }
     fetch(url)
       .then(response => response.json())
@@ -70,11 +71,11 @@ function Home() {
       TopicId: currentTopicId || 1
     }
 
-    let url = "http://localhost:8080/posts";
+    let url = API_BASE_URL + "/posts";
     let method = "POST";
     
     if (editId != null) {
-      url = `http://localhost:8080/posts/${editId}`;
+      url = API_BASE_URL + `/posts/${editId}`;
       method = "PATCH";
     }
     fetch(url, {
@@ -102,7 +103,7 @@ function Home() {
       return;
     }
 
-    fetch(`http://localhost:8080/posts/${id}`, {
+    fetch(API_BASE_URL + `/posts/${id}`, {
       method: "DELETE",
     })
     .then((response) => {

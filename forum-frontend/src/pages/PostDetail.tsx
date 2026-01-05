@@ -11,6 +11,7 @@ import {
 } from '@mui/material'
 
 import { type Post, type Comment } from '../types'
+import { API_BASE_URL } from "../config";
 
 function PostDetail() {
   const { id } = useParams(); 
@@ -23,7 +24,7 @@ function PostDetail() {
   const [newComment, setNewComment] = useState("")
 
   const fetchComments = useCallback(() => {
-    fetch(`http://localhost:8080/posts/${id}/comments`)
+    fetch(API_BASE_URL + `/posts/${id}/comments`)
     .then(res => res.json())
     .then(data => {
       console.log("FROM BACKEND:", data);
@@ -33,7 +34,7 @@ function PostDetail() {
   }, [id]);
 
   useEffect(() => {
-    fetch(`http://localhost:8080/posts/${id}`)
+    fetch(API_BASE_URL + `/posts/${id}`)
     .then(res => res.json())
     .then(data => setPost(data))
     .catch(err => console.error(err));
@@ -48,7 +49,7 @@ function PostDetail() {
 
     const payload = { Content: newComment };
 
-    fetch(`http://localhost:8080/posts/${id}/comments`, {
+    fetch(API_BASE_URL + `/posts/${id}/comments`, {
       method: "POST",
       headers: { "Content-Type" : "application/json" },
       body: JSON.stringify(payload)
