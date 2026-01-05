@@ -67,17 +67,54 @@ func TopicsHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	// Case 2: /topics/{id}/posts (Get posts for a topic - only one btw)
-	if len(parts) == 2 && parts[1] == "posts" && r.Method == "GET" {
-		topicId, err := strconv.Atoi(parts[0])
+	// Case 2: Specific Topic Actions "/topics/{id}"
+	if len(parts) == 1 {
+		id, err := strconv.Atoi(parts[0])
 		if err != nil {
 			http.Error(w, "Invalid Topic ID", 400)
 			return
 		}
 
+		// RENAME TOPIC (PATCH)
+		if r.Method == "PATCH" {
+			var t models.Topic
+			err := json.NewDecoder(r.Body).Decode(&t)
+			if err != nil {
+				http.Error(w, "Invalid JSON", 400)
+				return
+			}
+
+			_, err = database.DB.Exec("UPDATE topics SET name = $1 WHERE id = $2", t.Name, id)
+			if err != nil {
+				http.Error(w, "Database error", 500)
+				return
+			}
+			fmt.Fprintf(w, "Topic updated")
+			return
+		}
+
+		// DELETE TOPIC (DELETE)
+		if r.Method == "DELETE" {
+			// Step A: Delete all posts in this topic first (to avoid Foreign Key errors)
+			_, _ = database.DB.Exec("DELETE FROM posts WHERE topic_id = $1", id)
+
+			// Step B: Delete the topic itself
+			_, err := database.DB.Exec("DELETE FROM topics WHERE id = $1", id)
+			if err != nil {
+				http.Error(w, "Database error", 500)
+				return
+			}
+			fmt.Fprintf(w, "Topic deleted")
+			return
+		}
+	}
+
+	// Case 3: Legacy support for "/topics/{id}/posts" (just to keep it safe)
+	if len(parts) == 2 && parts[1] == "posts" && r.Method == "GET" {
+		topicId, _ := strconv.Atoi(parts[0])
 		rows, err := database.DB.Query("SELECT id, topic_id, title, description, username, created_at FROM posts WHERE topic_id = $1", topicId)
 		if err != nil {
-			http.Error(w, "Error fetching posts by topic id. Database error:", 500)
+			http.Error(w, "Database error", 500)
 			return
 		}
 		defer rows.Close()
@@ -85,10 +122,7 @@ func TopicsHandler(w http.ResponseWriter, r *http.Request) {
 		var posts []models.Post
 		for rows.Next() {
 			var p models.Post
-			err = rows.Scan(&p.Id, &p.TopicId, &p.Title, &p.Description, &p.Username, &p.CreatedAt)
-			if err != nil {
-				continue
-			}
+			rows.Scan(&p.Id, &p.TopicId, &p.Title, &p.Description, &p.Username, &p.CreatedAt)
 			posts = append(posts, p)
 		}
 		w.Header().Set("Content-Type", "application/json")
