@@ -20,6 +20,13 @@ I have reviewed all AI-suggested code to ensure it meets the assignment requirem
 
 ---
 
+## 📜 Development History (Proof of Work)
+This repository is a **monorepo merge** of my separate development repositories. 
+The complete commit history (showing work done over the assignment period) can be viewed here:
+
+* **Original Backend Repository:** https://github.com/Henry336/forum-backend
+* **Original Frontend Repository:** https://github.com/Henry336/forum-frontend
+
 ## How to Run
 
 ### Prerequisites
