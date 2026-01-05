@@ -22,6 +22,7 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Database error", 500)
 		return
 	}
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	fmt.Fprintf(w, "User %v logged in", u.Username)
+	json.NewEncoder(w).Encode(map[string]string{"message": "Login successful", "username": u.Username})
 }
