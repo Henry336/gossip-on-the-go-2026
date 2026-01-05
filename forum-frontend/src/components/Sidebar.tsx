@@ -11,7 +11,9 @@ import {
     Dialog,
     DialogTitle,
     DialogContent,
-    DialogActions
+    DialogActions,
+    Stack,
+    IconButton
 } from "@mui/material";
 import { Link, useParams } from "react-router-dom"; //
 import { type Topic } from "../types";
@@ -26,6 +28,9 @@ function Sidebar() {
 
     const [open, setOpen] = useState(false);
     const [newTopicName, setNewTopicName] = useState("");
+
+    const currentUser = localStorage.getItem("username");
+    const isAdmin = currentUser === "Henry";
 
     useEffect(() => {
         fetch(API_BASE_URL + "/topics")
@@ -54,6 +59,38 @@ function Sidebar() {
         .catch(err => console.error(err));
     };
 
+    const handleRenameTopic = (topicId: number, currentName: string) => {
+        const newName = window.prompt("Rename topic to:", currentName);
+        if (!newName || newName === currentName) {
+            return;
+        }
+        fetch(`${API_BASE_URL}/topics/${topicId}`, {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ Name: newName })
+        })
+        .then(response => {
+            if (response.ok) {
+                window.location.reload();
+            }
+            else alert("Failed to rename");
+        });
+    };
+
+    const handleDeleteTopic = (topicId: number) => {
+        if (!window.confirm("Delete this circle? All posts inside will be lost forever.")) return;
+
+        fetch(`${API_BASE_URL}/topics/${topicId}`, {
+            method: "DELETE"
+        })
+        .then(response => {
+            if (response.ok) {
+                window.location.assign("/"); 
+            }
+            else alert("Failed to delete");
+        });
+    };
+
     return (
         <Paper elevation={3} sx={{ width: '100%', maxWidth: 280, height: 'fit-content' }}>
             <Typography variant="h6" sx={{ p: 2, fontWeight: 'bold' }}>
@@ -61,7 +98,6 @@ function Sidebar() {
             </Typography>
             <Divider />
             <MenuList>
-                {/* Option for All Posts */}
                 <Link to="/" style={{ textDecoration: 'none', color: 'inherit' }}>
                     <MenuItem selected={activeId === null}>
                         <ListItemText>🏠 All Gossips</ListItemText>
@@ -70,52 +106,54 @@ function Sidebar() {
 
                 <Divider sx={{ my: 1 }} />
 
-                {/* List of Topics */}
                 {topics.map((t) => (
-                    <Link key={t.Id} to={`/topic/${t.Id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
-                        <MenuItem selected={activeId === t.Id}>
-                            <ListItemText>
-                                g/{t.Name}
-                            </ListItemText>
-                        </MenuItem>
-                    </Link>
+                    <Stack key={t.Id} direction="row" alignItems="center" sx={{ pr: 1 }}>
+                        <Link to={`/topic/${t.Id}`} style={{ textDecoration: 'none', color: 'inherit', flexGrow: 1 }}>
+                            <MenuItem selected={activeId === t.Id}>
+                                <ListItemText>g/{t.Name}</ListItemText>
+                            </MenuItem>
+                        </Link>
+
+                        {isAdmin && (
+                            <Stack direction="row">
+                                <IconButton size="small" onClick={() => handleRenameTopic(t.Id, t.Name)}>
+                                    ✏️
+                                </IconButton>
+                                <IconButton size="small" color="error" onClick={() => handleDeleteTopic(t.Id)}>
+                                    🗑️
+                                </IconButton>
+                            </Stack>
+                        )}
+                    </Stack>
                 ))}
             </MenuList>
 
-            <div style = {{ padding: '10px' }}>
+            <div style={{ padding: '10px' }}>
                 <Button
-                    variant = "outlined"
+                    variant="outlined"
                     fullWidth
-                    onClick = {() => setOpen(true)}
+                    onClick={() => setOpen(true)}
                 >
                     + Start a Circle
                 </Button>
             </div>
 
-            <Dialog open = {open} onClose = {() => setOpen(false)}>
-                <DialogTitle> 
-                    Start a new Gossip Circle
-                </DialogTitle>
+            <Dialog open={open} onClose={() => setOpen(false)}>
+                <DialogTitle>Start a new Gossip Circle</DialogTitle>
                 <DialogContent>
                     <TextField
                         autoFocus
-                        margin = "dense"
-                        label = "Topic of Gossip (e.g., CVWO)"
+                        margin="dense"
+                        label="Topic of Gossip"
                         fullWidth
-                        variant = "standard"
-                        value = {newTopicName}
-                        onChange = {(e) => setNewTopicName(e.target.value)}
+                        variant="standard"
+                        value={newTopicName}
+                        onChange={(e) => setNewTopicName(e.target.value)}
                     />
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick = {() => setOpen(false)}>
-                        Cancel
-                    </Button>
-                    <Button onClick = {handleCreateTopic} 
-                            variant = "contained"
-                    >
-                        Start
-                    </Button>
+                    <Button onClick={() => setOpen(false)}>Cancel</Button>
+                    <Button onClick={handleCreateTopic} variant="contained">Start</Button>
                 </DialogActions>
             </Dialog>
         </Paper>

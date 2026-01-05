@@ -23,6 +23,8 @@ function Home() {
   const currentTopicId = id ? parseInt(id) : null;
   const [posts, setPosts] = useState<Post[]>([])
 
+  const currentUser = localStorage.getItem("username");
+
   const [open, setOpen] = useState(false)
 
   const [title, setTitle] = useState("")
@@ -79,7 +81,8 @@ function Home() {
     const newPost = { 
       Title: title, 
       Description: desc,
-      TopicId: currentTopicId || 1
+      TopicId: currentTopicId || 1,
+      Username: currentUser
     }
 
     let url = API_BASE_URL + "/posts";
@@ -170,11 +173,15 @@ function Home() {
                                 {post.Title}
                             </Typography>
                         </Link>
+                        {/*  Only show buttons if the post belongs to the logged-in user - except myself */}
+                        {(post.Username === currentUser || currentUser === "Henry") && (
                          <Stack direction="row" spacing={1}>
                             <Button size="small" onClick={() => handleEditOpen(post)}>Edit</Button>
                             <Button size="small" color="error" onClick={() => handleDelete(post.Id)}>X</Button>
                         </Stack>
+                        )}
                     </Stack>
+                  
             
                     <Typography variant="body2" color="text.secondary" sx={{ mt: 1, mb: 2 }}>
                         {post.Description}
