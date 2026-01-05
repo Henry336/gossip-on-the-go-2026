@@ -13,7 +13,8 @@ import {
     DialogContent,
     DialogActions,
     Stack,
-    IconButton
+    IconButton,
+    Box
 } from "@mui/material";
 import { Link, useParams } from "react-router-dom"; //
 import { type Topic } from "../types";
@@ -165,24 +166,30 @@ function Sidebar() {
                 <Divider sx={{ my: 1 }} />
 
                 {topics.map((t) => (
-                    <Stack key={t.Id} direction="row" alignItems="center" sx={{ pr: 1 }}>
+                    <Stack key={t.Id} direction="row" alignItems="center" sx={{ width: '100%', pr: 1 }}>
+        
                         {/* THE CHECKBOX */}
                         {massDeleteMode && (
-                            <input 
-                                type="checkbox" 
-                                checked={selectedIds.includes(t.Id)}
-                                onChange={() => toggleSelection(t.Id)}
-                                style={{ marginLeft: '10px', transform: 'scale(1.2)' }}
-                            />
+                            <Box sx={{ pl: 2, display: 'flex', alignItems: 'center', zIndex: 2 }}>
+                                <input 
+                                    type="checkbox" 
+                                    checked={selectedIds.includes(t.Id)}
+                                    onChange={() => toggleSelection(t.Id)}
+                                    style={{ transform: 'scale(1.3)', cursor: 'pointer' }}
+                                />
+                            </Box>
                         )}
 
-                        <Link to={`/topic/${t.Id}`} style={{ textDecoration: 'none', color: 'inherit', flexGrow: 1 }}>
+                        <Link to={`/topic/${t.Id}`} style={{ textDecoration: 'none', color: 'inherit', flexGrow: 1, minWidth: 0 }}>
                             <MenuItem selected={activeId === t.Id}>
-                                <ListItemText>g/{t.Name}</ListItemText>
+                                <ListItemText 
+                                    primary={`g/${t.Name}`} 
+                                    
+                                    primaryTypographyProps={{ noWrap: true }} 
+                                />
                             </MenuItem>
                         </Link>
 
-                        {/* Individual Edit/Delete icons - Hide them during Mass Delete */}
                         {isAdmin && !massDeleteMode && (
                             <Stack direction="row">
                                 <IconButton size="small" onClick={() => handleRenameTopic(t.Id, t.Name)}>✏️</IconButton>
