@@ -15,6 +15,7 @@ import {
 } from "@mui/material";
 import { Link, useParams } from "react-router-dom"; //
 import { type Topic } from "../types";
+import { API_BASE_URL } from '../config';
 
 function Sidebar() {
     const [topics, setTopics] = useState<Topic[]>([]);
@@ -27,7 +28,7 @@ function Sidebar() {
     const [newTopicName, setNewTopicName] = useState("");
 
     useEffect(() => {
-        fetch("http://localhost:8080/topics")
+        fetch(API_BASE_URL + "/topics")
             .then(res => res.json())
             .then(data => setTopics(data || []))
             .catch(err => console.error(err));
@@ -38,7 +39,7 @@ function Sidebar() {
             return;
         }
 
-        fetch("http://localhost:8080/topics", {
+        fetch(API_BASE_URL + "/topics", {
             method: "POST",
             headers: { "Content-Type": "application/json"},
             body: JSON.stringify({ Name: newTopicName })
