@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { 
     Paper, 
     MenuList, 
@@ -20,6 +20,8 @@ import { type Topic } from "../types";
 import { API_BASE_URL } from '../config';
 
 function Sidebar() {
+    const [massDeleteMode, setMassDeleteMode] = useState(false);
+    const [selectedIds, setSelectedIds] = useState<number[]>([]);
     const [topics, setTopics] = useState<Topic[]>([]);
     const { id } = useParams(); // Read the URL to see which one is active
     
@@ -32,12 +34,38 @@ function Sidebar() {
     const currentUser = localStorage.getItem("username");
     const isAdmin = currentUser === "Henry";
 
-    useEffect(() => {
+    const toggleSelection = (id: number) => {
+        setSelectedIds(prev => 
+            prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]
+        );
+    };
+
+    const executeMassDelete = async () => {
+        if (!selectedIds.length) return;
+        if (!window.confirm(`Delete ${selectedIds.length} gossip circles?`)) return;
+
+        for (const topicId of selectedIds) {
+            await fetch(`${API_BASE_URL}/topics/${topicId}`, { 
+                method: "DELETE" 
+            });
+        }
+
+        setSelectedIds([]);
+        setMassDeleteMode(false);
+        fetchTopics(); // Refresh silently
+        window.location.assign("/"); // Redirect to home in case the active topic was deleted
+    };
+
+    const fetchTopics = useCallback(() => {
         fetch(API_BASE_URL + "/topics")
             .then(res => res.json())
             .then(data => setTopics(data || []))
             .catch(err => console.error(err));
     }, []);
+
+    useEffect(() => {
+        fetchTopics();
+    }, [fetchTopics]);
 
     const handleCreateTopic = () => {
         if (!newTopicName) {
@@ -93,9 +121,39 @@ function Sidebar() {
 
     return (
         <Paper elevation={3} sx={{ width: '100%', maxWidth: 280, height: 'fit-content' }}>
-            <Typography variant="h6" sx={{ p: 2, fontWeight: 'bold' }}>
-                Gossip Circles
-            </Typography>
+            <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ pr: 1 }}>
+                <Typography variant="h6" sx={{ p: 2, fontWeight: 'bold' }}>
+                    Gossip Circles
+                </Typography>
+                {/* THE MANAGEMENT TOGGLE */}
+                {isAdmin && (
+                    <IconButton 
+                        size="small" 
+                        onClick={() => {
+                            setMassDeleteMode(!massDeleteMode);
+                            setSelectedIds([]);
+                        }}
+                        color={massDeleteMode ? "secondary" : "default"}
+                    >
+                        ⚙️
+                    </IconButton>
+                )}
+            </Stack>
+
+            {/* MASS DELETE ACTION BUTTON */}
+            {massDeleteMode && selectedIds.length > 0 && (
+                <Button 
+                    variant="contained" 
+                    color="error" 
+                    size="small" 
+                    fullWidth 
+                    onClick={executeMassDelete}
+                    sx={{ mb: 1 }}
+                >
+                    Delete Selected ({selectedIds.length})
+                </Button>
+            )}
+
             <Divider />
             <MenuList>
                 <Link to="/" style={{ textDecoration: 'none', color: 'inherit' }}>
@@ -108,20 +166,27 @@ function Sidebar() {
 
                 {topics.map((t) => (
                     <Stack key={t.Id} direction="row" alignItems="center" sx={{ pr: 1 }}>
+                        {/* THE CHECKBOX */}
+                        {massDeleteMode && (
+                            <input 
+                                type="checkbox" 
+                                checked={selectedIds.includes(t.Id)}
+                                onChange={() => toggleSelection(t.Id)}
+                                style={{ marginLeft: '10px', transform: 'scale(1.2)' }}
+                            />
+                        )}
+
                         <Link to={`/topic/${t.Id}`} style={{ textDecoration: 'none', color: 'inherit', flexGrow: 1 }}>
                             <MenuItem selected={activeId === t.Id}>
                                 <ListItemText>g/{t.Name}</ListItemText>
                             </MenuItem>
                         </Link>
 
-                        {isAdmin && (
+                        {/* Individual Edit/Delete icons - Hide them during Mass Delete */}
+                        {isAdmin && !massDeleteMode && (
                             <Stack direction="row">
-                                <IconButton size="small" onClick={() => handleRenameTopic(t.Id, t.Name)}>
-                                    ✏️
-                                </IconButton>
-                                <IconButton size="small" color="error" onClick={() => handleDeleteTopic(t.Id)}>
-                                    🗑️
-                                </IconButton>
+                                <IconButton size="small" onClick={() => handleRenameTopic(t.Id, t.Name)}>✏️</IconButton>
+                                <IconButton size="small" color="error" onClick={() => handleDeleteTopic(t.Id)}>🗑️</IconButton>
                             </Stack>
                         )}
                     </Stack>

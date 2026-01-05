@@ -19,6 +19,8 @@ import { API_BASE_URL } from '../config';
 
 function Home() {
   // This is to get the topic ID from the URL (if it actually exist s)
+  const [massDeleteMode, setMassDeleteMode] = useState(false); // ONLY FOR ADMINNN
+  const [selectedIds, setSelectedIds] = useState<number[]>([]);
   const { id } = useParams();
   const currentTopicId = id ? parseInt(id) : null;
   const [posts, setPosts] = useState<Post[]>([])
@@ -32,6 +34,25 @@ function Home() {
   const [desc, setDesc] = useState("")
 
   const [editId, setEditId] = useState<number | null>(null)
+
+  const toggleSelection = (id: number) => {
+      setSelectedIds(prev => 
+          prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]
+      );
+  };
+
+  const executeMassDelete = async () => {
+      if (!window.confirm(`Delete ${selectedIds.length} items?`)) return;
+    
+      // Loop through selected IDs and call existing delete logic
+      for (const id of selectedIds) {
+          await fetch(`${API_BASE_URL}/posts/${id}`, { method: "DELETE" });
+      } 
+    
+      setSelectedIds([]);
+      setMassDeleteMode(false);
+      fetchPosts(); // Refresh the list silently
+  };
 
   const fetchPosts = useCallback(() => {
     let url = API_BASE_URL + "/posts";
@@ -147,6 +168,29 @@ function Home() {
         {/* RIGHT COLUMN: FEED */}
         {/* NTS: flexGrow: 1 means "take up all remaining space" */}
         <Box sx={{ flexGrow: 1, width: '100%' }}>
+            
+            {/* --- ADMIN MASS DELETE CONTROLS --- */}
+            {currentUser === "Henry" && (
+                <Stack direction="row" spacing={2} sx={{ mb: 3 }}>
+                    <Button 
+                        variant="contained" 
+                        color={massDeleteMode ? "secondary" : "primary"}
+                        onClick={() => {
+                            setMassDeleteMode(!massDeleteMode);
+                            setSelectedIds([]); // Clear selection when toggling
+                        }}
+                    >
+                        {massDeleteMode ? "Exit Management" : "Manage Feed"}
+                    </Button>
+
+                    {massDeleteMode && selectedIds.length > 0 && (
+                        <Button variant="contained" color="error" onClick={executeMassDelete}>
+                            Delete Selected ({selectedIds.length})
+                        </Button>
+                    )}
+                </Stack>
+            )}
+
             <Typography variant="h5" gutterBottom>
                 {currentTopicId === null ? "Gossipers' Gathering" : "🐝What the Buzz?"}
             </Typography>
@@ -155,33 +199,49 @@ function Home() {
                 {posts.length === 0 && <Typography>It's quiet around here... too quiet. So I'll hit you with a fun fact. Did you know that this took about 40 HOURS to make? Thank god I had Gemini as my tutor when I lost my way. Otherwise, I might have been stuck with the CORS errors at the very beginning and never moved on from there. Since you're still reading this, I'll drop another fun fact. Did you know that the largest blackhole known to mankind is about 9.5 trillion times the size of our Sun? This had been considered scientifically impossible since blackholes theoretically cannot have such massive solar masses until one day, the scientists accidentally discovered that I made it up! Okay, here's a real fun fact though. Did you know that Nintendo came before the collapse of the Ottoman Empire? This is because Nintendo was founded in Kyoto in 1889 and the Empire did not collapse until 1922. So, samurai could technically have played Nintendo! Isn't it amazing how I prompted Gemini to "give me some actual, unbelievable fun facts about random topics", copied the top one, and pasted it here? Since you're still reading, for god knows what reason, here's yet ANOTHER fun fact. Did you know that my current favourite ongoing show is The Amazing Digital Circus? To put it simply, the existential dread that all the characters go through on an episodic basis is just so fascinating to me. Is it your favourite as well? Oh, oh, and did you know . . .</Typography>}
                 
                 {posts.map((post) => (
-                <Card key={post.Id} sx={{ '&:hover': { boxShadow: 4 }, transition: '0.3s' }}>
-                    <CardContent>
-                    <Stack direction="row" justifyContent="space-between" alignItems="center">
-                        <Link to={`/posts/${post.Id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
-                            <Typography variant="h6" sx={{ cursor: 'pointer', fontWeight: 'bold' }}>
-                                {post.Title}
-                            </Typography>
-                        </Link>
-                        {/*  Only show buttons if the post belongs to the logged-in user - except myself */}
-                        {(post.Username === currentUser || currentUser === "Henry") && (
-                         <Stack direction="row" spacing={1}>
-                            <Button size="small" onClick={() => handleEditOpen(post)}>Edit</Button>
-                            <Button size="small" color="error" onClick={() => handleDelete(post.Id)}>X</Button>
-                        </Stack>
-                        )}
-                    </Stack>
-                  
-            
-                    <Typography variant="body2" color="text.secondary" sx={{ mt: 1, mb: 2 }}>
-                        {post.Description}
-                    </Typography>
+                  <Card key={post.Id} sx={{ '&:hover': { boxShadow: 4 }, transition: '0.3s' }}>
+                      <CardContent>
+                          {/* Horizontal Stack to hold Checkbox + Content */}
+                          <Stack direction="row" spacing={2} alignItems="flex-start">
+                
+                              {/* THE CHECKBOX */}
+                              {massDeleteMode && (
+                                 <input 
+                                      type="checkbox" 
+                                      checked={selectedIds.includes(post.Id)}
+                                      onChange={() => toggleSelection(post.Id)}
+                                      style={{ marginTop: '5px', transform: 'scale(1.4)', cursor: 'pointer' }}
+                                  />
+                              )}
 
-                    <Typography variant="caption" sx={{ color: 'gray' }}>
-                        Shared by {post.Username} • {new Date(post.CreatedAt).toLocaleDateString()}
-                    </Typography>
-                    </CardContent>
-                </Card>
+                              <Box sx={{ flexGrow: 1 }}>
+                                  <Stack direction="row" justifyContent="space-between" alignItems="center">
+                                      <Link to={`/posts/${post.Id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+                                          <Typography variant="h6" sx={{ cursor: 'pointer', fontWeight: 'bold' }}>
+                                              {post.Title}
+                                          </Typography>
+                                      </Link>
+                        
+                                      {/* Hide standard Edit/Delete buttons when Mass Delete is active */}
+                                      {!massDeleteMode && (post.Username === currentUser || currentUser === "Henry") && (
+                                          <Stack direction="row" spacing={1}>
+                                              <Button size="small" onClick={() => handleEditOpen(post)}>Edit</Button>
+                                              <Button size="small" color="error" onClick={() => handleDelete(post.Id)}>X</Button>
+                                          </Stack>
+                                      )}
+                                  </Stack>
+
+                                  <Typography variant="body2" color="text.secondary" sx={{ mt: 1, mb: 2 }}>
+                                      {post.Description}
+                                  </Typography>
+
+                                  <Typography variant="caption" sx={{ color: 'gray' }}>
+                                      Shared by {post.Username} • {new Date(post.CreatedAt).toLocaleDateString()}
+                                  </Typography>
+                              </Box>
+                          </Stack>
+                      </CardContent>
+                  </Card>
                 ))}
             </Stack>
         </Box>

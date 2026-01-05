@@ -7,13 +7,16 @@ import {
   CardContent,
   Stack, 
   TextField,
-  Divider
+  Divider,
+  Box
 } from '@mui/material'
 
 import { type Post, type Comment } from '../types'
 import { API_BASE_URL } from "../config";
 
 function PostDetail() {
+  const [massDeleteMode, setMassDeleteMode] = useState(false);
+  const [selectedIds, setSelectedIds] = useState<number[]>([]);
   const currentUser = localStorage.getItem("username");
   const isAdmin = currentUser === "Henry";
   const { id } = useParams(); 
@@ -24,6 +27,25 @@ function PostDetail() {
   const [comments, setComments] = useState<Comment[]>([])
   // NTS: Input for writing a new comment
   const [newComment, setNewComment] = useState("")
+
+  const toggleSelection = (id: number) => {
+      setSelectedIds(prev => 
+          prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]
+      );
+  };
+
+  const executeMassDelete = async () => {
+      if (!window.confirm(`Delete ${selectedIds.length} items?`)) return;
+    
+      // Loop through selected IDs and call existing delete logic
+      for (const id of selectedIds) {
+          await fetch(`${API_BASE_URL}/posts/${id}`, { method: "DELETE" });
+      }
+    
+      setSelectedIds([]);
+      setMassDeleteMode(false);
+      fetchComments(); // Refresh the list silently
+  };
 
   const fetchComments = useCallback(() => {
     fetch(API_BASE_URL + `/posts/${id}/comments`)
@@ -137,6 +159,28 @@ function PostDetail() {
 
         <Divider sx={{ mb: 4 }} /> {/* Read more about what this does, later */}
 
+        {/* THE ADMIN CONTROL PANEL */}
+        {isAdmin && (
+            <Stack direction="row" spacing={2} sx={{ mb: 3 }}>
+                <Button 
+                    variant="contained" 
+                    color={massDeleteMode ? "secondary" : "primary"}
+                    onClick={() => {
+                        setMassDeleteMode(!massDeleteMode);
+                        setSelectedIds([]); // Clear selection when toggling
+                    }}
+                >
+                    {massDeleteMode ? "Exit Management" : "Manage Chatters"}
+                </Button>
+
+                {massDeleteMode && selectedIds.length > 0 && (
+                    <Button variant="contained" color="error" onClick={executeMassDelete}>
+                        Delete Selected ({selectedIds.length})
+                    </Button>
+                )}
+            </Stack>
+        )}
+        
         {/* COMMENT SECTION */}
         <Typography variant="h5" gutterBottom> Chatters ({comments.length})</Typography>
         
@@ -160,23 +204,40 @@ function PostDetail() {
             {comments.map((c) => (
               <Card key={c.Id} variant="outlined">
                 <CardContent>
-                    <Stack direction="row" justifyContent="space-between" alignItems="flex-start">
-                        <Typography variant="body1">{c.Content}</Typography>
+                    {/* NTS: Here, use a horizontal Stack to put the checkbox next to the content */}
+                        <Stack direction="row" spacing={2} alignItems="flex-start">
+                            
+                            {/* THE CHECKBOX  */}
+                            {massDeleteMode && (
+                                <input 
+                                    type="checkbox" 
+                                    checked={selectedIds.includes(c.Id)}
+                                    onChange={() => toggleSelection(c.Id)}
+                                    style={{ marginTop: '7px', transform: 'scale(1.4)', cursor: 'pointer' }}
+                                />
+                            )}
 
-                        {(c.Username === currentUser || isAdmin) && (
-                            <Stack direction="row" spacing={1}>
-                                <Button size="small" onClick={() => handleEditComment(c)}>Edit</Button>
-                                <Button size="small" color="error" onClick={() => handleDeleteComment(c.Id)}>X</Button>
-                            </Stack>
-                        )}
-                    </Stack>
+                            <Box sx={{ flexGrow: 1 }}>
+                                <Stack direction="row" justifyContent="space-between" alignItems="flex-start">
+                                    <Typography variant="body1">{c.Content}</Typography>
 
-                    <Typography variant="caption" color="gray">
-                        {c.Username || "Anonymous"} • {new Date(c.CreatedAt).toLocaleString()}
-                    </Typography>
-                </CardContent>
-            </Card>
-          ))}
+                                    {/* Hide standard Edit/Delete buttons when Mass Delete is active to avoid clutter */}
+                                    {!massDeleteMode && (c.Username === currentUser || isAdmin) && (
+                                        <Stack direction="row" spacing={1}>
+                                            <Button size="small" onClick={() => handleEditComment(c)}>Edit</Button>
+                                            <Button size="small" color="error" onClick={() => handleDeleteComment(c.Id)}>X</Button>
+                                        </Stack>
+                                    )}
+                                </Stack>
+
+                                <Typography variant="caption" color="gray">
+                                    {c.Username || "Anonymous"} • {new Date(c.CreatedAt).toLocaleString()}
+                                </Typography>
+                            </Box>
+                        </Stack>
+                    </CardContent>
+                </Card>
+            ))}
         </Stack>
     </div>
   )
