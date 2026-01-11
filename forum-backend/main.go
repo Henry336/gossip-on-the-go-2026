@@ -35,7 +35,7 @@ func main() {
 	http.HandleFunc("/login", enableCORS(handlers.LoginHandler))
 
 	http.HandleFunc("/topics", enableCORS(handlers.TopicsHandler))
-	http.HandleFunc("/topics/", enableCORS(handlers.TopicsHandler)) // Matches /topics/1/posts
+	http.HandleFunc("/topics/", enableCORS(handlers.TopicsHandler)) // Matches /topics/1/posts, basically everything with /topics/something...
 
 	http.HandleFunc("/posts", enableCORS(handlers.PostsHandler))
 	http.HandleFunc("/posts/", enableCORS(handlers.PostsHandler)) // Matches /posts/1 or /posts/1/comments

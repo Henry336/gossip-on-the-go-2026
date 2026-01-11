@@ -3,27 +3,27 @@ package models
 import "time"
 
 type Topic struct {
-	Id   int
-	Name string
+	Id   int    `json:"id"`
+	Name string `json:"name"`
 }
 
 type Post struct {
-	Id          int
-	Title       string
-	Description string
-	CreatedAt   time.Time
-	TopicId     int
-	Username    string // Added from Auth update
+	Id          int       `json:"id"`
+	Title       string    `json:"title"`
+	Description string    `json:"description"`
+	CreatedAt   time.Time `json:"created_at"`
+	TopicId     int       `json:"topic_id"`
+	Username    string    `json:"username"` // Added from Auth update
 }
 
 type Comment struct {
-	Id        int
-	Content   string
-	CreatedAt time.Time
-	PostId    int
-	Username  string // Added from Auth update
+	Id        int       `json:"id"`
+	Content   string    `json:"content"`
+	CreatedAt time.Time `json:"created_at"`
+	PostId    int       `json:"post_id"`
+	Username  string    `json:"username"` // Added from Auth update
 }
 
 type User struct {
-	Username string
+	Username string `json:"username"`
 }
