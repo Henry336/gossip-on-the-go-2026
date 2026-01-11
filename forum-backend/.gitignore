@@ -1,0 +1,11 @@
+# Secrets
+.env
+
+# Binaries (Executables)
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+main
+test

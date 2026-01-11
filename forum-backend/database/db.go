@@ -3,10 +3,10 @@ package database
 import (
 	"database/sql"
 	"fmt"
+	"github.com/joho/godotenv"
+	_ "github.com/lib/pq" // postgres driver import
 	"log"
 	"os"
-
-	_ "github.com/lib/pq" // postgres driver import
 )
 
 // NTS: Global DB variable so handlers can access it
@@ -14,13 +14,15 @@ var DB *sql.DB
 
 func InitDB() {
 	var err error
+	// Trying to load .en file
+	_ = godotenv.Load()
+
 	// This is for checking if there is a cloud database url first
 	connStr := os.Getenv("DATABASE_URL")
 
 	if connStr == "" {
-		connStr = "user=postgres dbname=cvwo_forum sslmode=disable password=Heinlinhtet@336"
+		log.Fatal("CRITICAL ERROR: DATABASE_URL environment variable is not set!")
 	}
-
 	DB, err = sql.Open("postgres", connStr)
 	if err != nil {
 		log.Fatal(err)
@@ -28,10 +30,10 @@ func InitDB() {
 
 	err = DB.Ping()
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal("Failed to connect to database: ", err)
 	}
 
-	fmt.Println("Connected to Database successfully!")
+	log.Println("Connected to Database successfully!")
 
 	createTables()
 }
