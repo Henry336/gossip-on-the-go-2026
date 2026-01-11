@@ -13,7 +13,7 @@ type Post struct {
 	Description string
 	CreatedAt   time.Time
 	TopicId     int
-	Username    string // Added from our Auth update
+	Username    string // Added from Auth update
 }
 
 type Comment struct {
@@ -21,7 +21,7 @@ type Comment struct {
 	Content   string
 	CreatedAt time.Time
 	PostId    int
-	Username  string // Added from our Auth update
+	Username  string // Added from Auth update
 }
 
 type User struct {
