@@ -166,24 +166,24 @@ function Sidebar() {
                 <Divider sx={{ my: 1 }} />
 
                 {topics.map((t) => (
-                    <Stack key={t.Id} direction="row" alignItems="center" sx={{ width: '100%', pr: 1 }}>
+                    <Stack key={t.id} direction="row" alignItems="center" sx={{ width: '100%', pr: 1 }}>
         
                         {/* THE CHECKBOX */}
                         {massDeleteMode && (
                             <Box sx={{ pl: 2, display: 'flex', alignItems: 'center', zIndex: 2 }}>
                                 <input 
                                     type="checkbox" 
-                                    checked={selectedIds.includes(t.Id)}
-                                    onChange={() => toggleSelection(t.Id)}
+                                    checked={selectedIds.includes(t.id)}
+                                    onChange={() => toggleSelection(t.id)}
                                     style={{ transform: 'scale(1.3)', cursor: 'pointer' }}
                                 />
                             </Box>
                         )}
 
-                        <Link to={`/topic/${t.Id}`} style={{ textDecoration: 'none', color: 'inherit', flexGrow: 1, minWidth: 0 }}>
-                            <MenuItem selected={activeId === t.Id}>
+                        <Link to={`/topic/${t.id}`} style={{ textDecoration: 'none', color: 'inherit', flexGrow: 1, minWidth: 0 }}>
+                            <MenuItem selected={activeId === t.id}>
                                 <ListItemText 
-                                    primary={`g/${t.Name}`} 
+                                    primary={`g/${t.name}`} 
                                     
                                     primaryTypographyProps={{ noWrap: true }} 
                                 />
@@ -192,8 +192,8 @@ function Sidebar() {
 
                         {isAdmin && !massDeleteMode && (
                             <Stack direction="row">
-                                <IconButton size="small" onClick={() => handleRenameTopic(t.Id, t.Name)}>✏️</IconButton>
-                                <IconButton size="small" color="error" onClick={() => handleDeleteTopic(t.Id)}>🗑️</IconButton>
+                                <IconButton size="small" onClick={() => handleRenameTopic(t.id, t.name)}>✏️</IconButton>
+                                <IconButton size="small" color="error" onClick={() => handleDeleteTopic(t.id)}>🗑️</IconButton>
                             </Stack>
                         )}
                     </Stack>

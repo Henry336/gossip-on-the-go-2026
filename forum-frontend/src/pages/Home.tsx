@@ -78,9 +78,9 @@ function Home() {
   }
 
   const handleEditOpen = (p: Post) => {
-    setEditId(p.Id);  
-    setTitle(p.Title);
-    setDesc(p.Description);
+    setEditId(p.id);  
+    setTitle(p.title);
+    setDesc(p.description);
     setOpen(true);
   }
 
@@ -199,7 +199,7 @@ function Home() {
                 {posts.length === 0 && <Typography>It's quiet around here... too quiet. So I'll hit you with a fun fact. Did you know that this took about 40 HOURS to make? Thank god I had Gemini as my tutor when I lost my way. Otherwise, I might have been stuck with the CORS errors at the very beginning and never moved on from there. Since you're still reading this, I'll drop another fun fact. Did you know that the largest blackhole known to mankind is about 9.5 trillion times the size of our Sun? This had been considered scientifically impossible since blackholes theoretically cannot have such massive solar masses until one day, the scientists accidentally discovered that I made it up! Okay, here's a real fun fact though. Did you know that Nintendo came before the collapse of the Ottoman Empire? This is because Nintendo was founded in Kyoto in 1889 and the Empire did not collapse until 1922. So, samurai could technically have played Nintendo! Isn't it amazing how I prompted Gemini to "give me some actual, unbelievable fun facts about random topics", copied the top one, and pasted it here? Since you're still reading, for god knows what reason, here's yet ANOTHER fun fact. Did you know that my current favourite ongoing show is The Amazing Digital Circus? To put it simply, the existential dread that all the characters go through on an episodic basis is just so fascinating to me. Is it your favourite as well? Oh, oh, and did you know . . .</Typography>}
                 
                 {posts.map((post) => (
-                  <Card key={post.Id} sx={{ '&:hover': { boxShadow: 4 }, transition: '0.3s' }}>
+                  <Card key={post.id} sx={{ '&:hover': { boxShadow: 4 }, transition: '0.3s' }}>
                       <CardContent>
                           {/* Horizontal Stack to hold Checkbox + Content */}
                           <Stack direction="row" spacing={2} alignItems="flex-start">
@@ -208,35 +208,35 @@ function Home() {
                               {massDeleteMode && (
                                  <input 
                                       type="checkbox" 
-                                      checked={selectedIds.includes(post.Id)}
-                                      onChange={() => toggleSelection(post.Id)}
+                                      checked={selectedIds.includes(post.id)}
+                                      onChange={() => toggleSelection(post.id)}
                                       style={{ marginTop: '5px', transform: 'scale(1.4)', cursor: 'pointer' }}
                                   />
                               )}
 
                               <Box sx={{ flexGrow: 1 }}>
                                   <Stack direction="row" justifyContent="space-between" alignItems="center">
-                                      <Link to={`/posts/${post.Id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+                                      <Link to={`/posts/${post.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
                                           <Typography variant="h6" sx={{ cursor: 'pointer', fontWeight: 'bold' }}>
-                                              {post.Title}
+                                              {post.title}
                                           </Typography>
                                       </Link>
                         
                                       {/* Hide standard Edit/Delete buttons when Mass Delete is active */}
-                                      {!massDeleteMode && (post.Username === currentUser || currentUser === "Henry") && (
+                                      {!massDeleteMode && (post.username === currentUser || currentUser === "Henry") && (
                                           <Stack direction="row" spacing={1}>
                                               <Button size="small" onClick={() => handleEditOpen(post)}>Edit</Button>
-                                              <Button size="small" color="error" onClick={() => handleDelete(post.Id)}>X</Button>
+                                              <Button size="small" color="error" onClick={() => handleDelete(post.id)}>X</Button>
                                           </Stack>
                                       )}
                                   </Stack>
 
                                   <Typography variant="body2" color="text.secondary" sx={{ mt: 1, mb: 2 }}>
-                                      {post.Description}
+                                      {post.description}
                                   </Typography>
 
                                   <Typography variant="caption" sx={{ color: 'gray' }}>
-                                      Shared by {post.Username} • {new Date(post.CreatedAt).toLocaleDateString()}
+                                      Shared by {post.username} • {new Date(post.created_at).toLocaleDateString()}
                                   </Typography>
                               </Box>
                           </Stack>

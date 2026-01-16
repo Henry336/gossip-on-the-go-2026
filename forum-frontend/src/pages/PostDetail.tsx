@@ -108,10 +108,10 @@ function PostDetail() {
   };
 
   const handleEditComment = (comment: Comment) => {
-      const newText = window.prompt("Edit your comment:", comment.Content);
-      if (!newText || newText === comment.Content) return;
+      const newText = window.prompt("Edit your comment:", comment.content);
+      if (!newText || newText === comment.content) return;
 
-      fetch(API_BASE_URL + `/posts/${id}/comments/${comment.Id}`, {
+      fetch(API_BASE_URL + `/posts/${id}/comments/${comment.id}`, {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ Content: newText })
@@ -143,15 +143,15 @@ function PostDetail() {
             <CardContent>
 
                 <Typography variant="h3" gutterBottom>
-                  {post.Title}
+                  {post.title}
                 </Typography>
 
                 <Typography variant="body1" sx={{ fontSize: '1.2rem' }}>
-                  {post.Description}
+                  {post.description}
                 </Typography>
 
                 <Typography variant="caption" color="gray" sx={{ mt: 2, display: 'block' }}>
-                    Shared by {post.Username} • {new Date(post.CreatedAt).toLocaleDateString()}
+                    Shared by {post.username} • {new Date(post.created_at).toLocaleDateString()}
                 </Typography>
 
             </CardContent>
@@ -202,7 +202,7 @@ function PostDetail() {
         {/* List of Comments */}
         <Stack spacing={2}>
             {comments.map((c) => (
-              <Card key={c.Id} variant="outlined">
+              <Card key={c.id} variant="outlined">
                 <CardContent>
                     {/* NTS: Here, use a horizontal Stack to put the checkbox next to the content */}
                         <Stack direction="row" spacing={2} alignItems="flex-start">
@@ -211,27 +211,27 @@ function PostDetail() {
                             {massDeleteMode && (
                                 <input 
                                     type="checkbox" 
-                                    checked={selectedIds.includes(c.Id)}
-                                    onChange={() => toggleSelection(c.Id)}
+                                    checked={selectedIds.includes(c.id)}
+                                    onChange={() => toggleSelection(c.id)}
                                     style={{ marginTop: '7px', transform: 'scale(1.4)', cursor: 'pointer' }}
                                 />
                             )}
 
                             <Box sx={{ flexGrow: 1 }}>
                                 <Stack direction="row" justifyContent="space-between" alignItems="flex-start">
-                                    <Typography variant="body1">{c.Content}</Typography>
+                                    <Typography variant="body1">{c.content}</Typography>
 
                                     {/* Hide standard Edit/Delete buttons when Mass Delete is active to avoid clutter */}
-                                    {!massDeleteMode && (c.Username === currentUser || isAdmin) && (
+                                    {!massDeleteMode && (c.username === currentUser || isAdmin) && (
                                         <Stack direction="row" spacing={1}>
                                             <Button size="small" onClick={() => handleEditComment(c)}>Edit</Button>
-                                            <Button size="small" color="error" onClick={() => handleDeleteComment(c.Id)}>X</Button>
+                                            <Button size="small" color="error" onClick={() => handleDeleteComment(c.id)}>X</Button>
                                         </Stack>
                                     )}
                                 </Stack>
 
                                 <Typography variant="caption" color="gray">
-                                    {c.Username || "Anonymous"} • {new Date(c.CreatedAt).toLocaleString()}
+                                    {c.username || "Anonymous"} • {new Date(c.created_at).toLocaleString()}
                                 </Typography>
                             </Box>
                         </Stack>

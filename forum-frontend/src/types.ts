@@ -4,7 +4,7 @@ export interface Post {
   title:       string;
   description: string;
   username:    string;
-  createdAt:   string;
+  created_at:   string;
 }
 
 export interface Comment {
@@ -12,7 +12,7 @@ export interface Comment {
     post_id:    number;
     content:   string;
     username:  string;
-    createdAt: string;
+    created_at: string;
 }
 
 export interface Topic {
