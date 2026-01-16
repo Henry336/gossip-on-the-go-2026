@@ -1,21 +1,21 @@
 export interface Post {
-  Id:          number;
-  TopicId:     number;
-  Title:       string;
-  Description: string;
-  Username:    string;
-  CreatedAt:   string;
+  id:          number;
+  topic_id:     number;
+  title:       string;
+  description: string;
+  username:    string;
+  createdAt:   string;
 }
 
 export interface Comment {
-    Id:        number;
-    PostId:    number;
-    Content:   string;
-    Username:  string;
-    CreatedAt: string;
+    id:        number;
+    post_id:    number;
+    content:   string;
+    username:  string;
+    createdAt: string;
 }
 
 export interface Topic {
-    Id: number;
-    Name: string;
+    id: number;
+    name: string;
 }
