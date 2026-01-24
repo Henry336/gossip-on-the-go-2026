@@ -48,7 +48,7 @@ func InitDB() {
 		INSERT INTO users (username) VALUES ('Anonymous') ON CONFLICT (username) DO NOTHING;
 
 		-- Delete existing topics first to avoid conflicts
-		DELETE FROM topics;
+		-- DELETE FROM topics;
 
 		-- Insert topics with explicit IDs
 		INSERT INTO topics (id, name) VALUES 
@@ -66,6 +66,20 @@ func InitDB() {
 		fmt.Println("Seeding Warning:", seedErr)
 	} else {
 		fmt.Println("✅ DATABASE SUCCESSFULLY SEEDED WITH CORRECT IDs!")
+	}
+
+	var count int
+	DB.QueryRow("SELECT COUNT(*) FROM topics").Scan(&count)
+	fmt.Printf("📊 TOPICS COUNT: %d\n", count)
+
+	rows, _ := DB.Query("SELECT id, name FROM topics ORDER BY id")
+	defer rows.Close()
+	fmt.Println("📋 TOPICS IN DATABASE:")
+	for rows.Next() {
+		var id int
+		var name string
+		rows.Scan(&id, &name)
+		fmt.Printf("  - ID: %d, Name: %s\n", id, name)
 	}
 }
 
