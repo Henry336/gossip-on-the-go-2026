@@ -35,23 +35,31 @@ func InitDB() {
 
 	log.Println("Connected to Database successfully!")
 
-	DropTables()
+	// DropTables()
+	// NTS: This is only to bypass the firewall and drop tables if needed!
 
 	createTables()
 
 	// TEMPORARY SEEDING CODE
 	// NTS: This runs automatically when the server starts on Render. (Why? Cuz I couldn't bypass NUS wifi's firewall - and my laptop cannot connect to my mobile hotspot)
 	seedQuery := `
-    INSERT INTO users (username) VALUES ('Henry') ON CONFLICT (username) DO NOTHING;
-    INSERT INTO topics (id, name) VALUES 
-	(1, 'General'), 
-	(2, 'NUS'), 
-	(3, 'Computing'), 
-	(4, 'Engineering') 
-	ON CONFLICT (id) DO UPDATE SET name = EXCLUDED.name; 
+		-- First, insert users
+		INSERT INTO users (username) VALUES ('Henry') ON CONFLICT (username) DO NOTHING;
+		INSERT INTO users (username) VALUES ('Anonymous') ON CONFLICT (username) DO NOTHING;
 
-	SELECT setval('topics_id_seq', (SELECT MAX(id) FROM topics));
-    `
+		-- Delete existing topics first to avoid conflicts
+		DELETE FROM topics;
+
+		-- Insert topics with explicit IDs
+		INSERT INTO topics (id, name) VALUES 
+    		(1, 'General'), 
+    		(2, 'NUS'), 
+    		(3, 'Computing'), 
+    		(4, 'Engineering');
+
+		-- Reset the sequence to start from 5
+		SELECT setval('topics_id_seq', 5, false);
+		`
 	_, seedErr := DB.Exec(seedQuery)
 	if seedErr != nil {
 		// NTS: What's happening here? "Log it but don't crash, just in case tables are weird"
