@@ -36,6 +36,20 @@ func InitDB() {
 	log.Println("Connected to Database successfully!")
 
 	createTables()
+
+	// TEMPORARY SEEDING CODE
+	// NTS: This runs automatically when the server starts on Render. (Why? Cuz I couldn't bypass NUS wifi's firewall - and my laptop cannot connect to my mobile hotspot)
+	seedQuery := `
+    INSERT INTO users (username) VALUES ('Henry') ON CONFLICT (username) DO NOTHING;
+    INSERT INTO topics (name) VALUES ('General'), ('NUS'), ('Computing'), ('Engineering') ON CONFLICT DO NOTHING;
+    `
+	_, seedErr := DB.Exec(seedQuery)
+	if seedErr != nil {
+		// NTS: What's happening here? "Log it but don't crash, just in case tables are weird"
+		fmt.Println("Seeding Warning:", seedErr)
+	} else {
+		fmt.Println("✅ DATABASE SUCCESSFULLY SEEDED!")
+	}
 }
 
 func createTables() {
