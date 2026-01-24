@@ -87,7 +87,6 @@ func createTables() {
     		created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 		);
 
-		INSERT INTO topics (name) VALUES ('General'), ('NUS'), ('Computing') ON CONFLICT DO NOTHING;
 		`
 	_, err := DB.Exec(query)
 	if err != nil {
