@@ -91,10 +91,10 @@ function Home() {
     }
 
     const newPost = { 
-      Title: title, 
-      Description: desc,
-      TopicId: currentTopicId || 1,
-      Username: currentUser
+      title: title, 
+      description: desc,
+      topic_id: currentTopicId || 1,
+      username: currentUser
     }
 
     let url = API_BASE_URL + "/posts";
