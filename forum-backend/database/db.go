@@ -35,6 +35,8 @@ func InitDB() {
 
 	log.Println("Connected to Database successfully!")
 
+	DropTables()
+
 	createTables()
 
 	// TEMPORARY SEEDING CODE
@@ -59,35 +61,48 @@ func InitDB() {
 	}
 }
 
+func DropTables() {
+	query := `
+        DROP TABLE IF EXISTS comments CASCADE;
+        DROP TABLE IF EXISTS posts CASCADE;
+        DROP TABLE IF EXISTS topics CASCADE;
+        DROP TABLE IF EXISTS users CASCADE;
+    `
+	_, err := DB.Exec(query)
+	if err != nil {
+		log.Fatal("Error dropping tables: ", err)
+	}
+	fmt.Println("✅ TABLES DROPPED SUCCESSFULLY!")
+}
+
 func createTables() {
 	query := `
-		CREATE TABLE IF NOT EXISTS topics (
-    		id SERIAL PRIMARY KEY,
-    		name TEXT NOT NULL UNIQUE
-		);
-
-		CREATE TABLE IF NOT EXISTS users (
-    		username VARCHAR(50) PRIMARY KEY
-		);
-
-		CREATE TABLE IF NOT EXISTS posts (
-    		id SERIAL PRIMARY KEY,
-    		title TEXT NOT NULL,
-    		description TEXT NOT NULL,
-    		username TEXT DEFAULT 'Anonymous',
-    		topic_id INTEGER REFERENCES topics(id) ON DELETE CASCADE,
-    		created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-		);
-
-		CREATE TABLE IF NOT EXISTS comments (
-    		id SERIAL PRIMARY KEY,
-    		content TEXT NOT NULL,
-    		username TEXT DEFAULT 'Anonymous',
-    		post_id INTEGER REFERENCES posts(id),
-    		created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-		);
-
-		`
+        CREATE TABLE IF NOT EXISTS users (
+            username VARCHAR(50) PRIMARY KEY
+        );
+        
+        CREATE TABLE IF NOT EXISTS topics (
+            id SERIAL PRIMARY KEY,
+            name TEXT NOT NULL UNIQUE
+        );
+        
+        CREATE TABLE IF NOT EXISTS posts (
+            id SERIAL PRIMARY KEY,
+            title TEXT NOT NULL,
+            description TEXT NOT NULL,
+            username VARCHAR(50) REFERENCES users(username),
+            topic_id INTEGER REFERENCES topics(id) ON DELETE CASCADE,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+        
+        CREATE TABLE IF NOT EXISTS comments (
+            id SERIAL PRIMARY KEY,
+            content TEXT NOT NULL,
+            username VARCHAR(50) REFERENCES users(username),
+            post_id INTEGER REFERENCES posts(id) ON DELETE CASCADE,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+        `
 	_, err := DB.Exec(query)
 	if err != nil {
 		log.Fatal("Error creating tables: ", err)
