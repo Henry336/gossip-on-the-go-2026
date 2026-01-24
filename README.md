@@ -10,7 +10,7 @@ Features a modular Go backend (Standard Library + Postgres) and a React/TypeScri
 **AI Tool Used:** Google Gemini (Large Language Model)
 
 **Purpose of Usage:**
-I used Gemini primarily as a **tutor and technical guide** throughout the development process.
+I used Gemini primarily as a tutor and technical guide throughout the development process.
 * **Concept Explanation:** Used to understand the flow of data between React and Go, and how `sql.DB` connections persist.
 * **Debugging:** Used to resolve CORS errors, TypeScript type mismatches, and specific Go package visibility issues.
 * **Boilerplate Generation:** Used to generate the initial Material UI (MUI) styling structures and repetitive SQL scan statements, which I then customized to fit my specific data models.
@@ -22,7 +22,7 @@ I have reviewed all AI-suggested code to ensure it meets the assignment requirem
 
 ## 📜 Development History (Proof of Work)
 
-This repository is a **monorepo merge** of my separate development repositories. 
+This repository is a monorepo merge of my separate development repositories. 
 The complete commit history (showing work done over the assignment period) can be viewed here:
 
 * **Original Backend Repository:** https://github.com/Henry336/forum-backend
