@@ -20,7 +20,7 @@ I have reviewed all AI-suggested code to ensure it meets the assignment requirem
 
 ---
 
-## 📜 Development History (Proof of Work)
+## Development History (Proof of Work)
 
 This repository is a monorepo merge of my separate development repositories. 
 The complete commit history (showing work done over the assignment period) can be viewed here:
@@ -122,6 +122,13 @@ npm install
 npm run dev
 # Application runs on http://localhost:5173
 ```
+
+---
+
+## Deployment
+
+The application is deployed and accessible online.
+**Live Demo:** [https://splendid-lolly-4954e5.netlify.app](https://splendid-lolly-4954e5.netlify.app)
 
 ---
 
