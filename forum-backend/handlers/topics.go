@@ -71,7 +71,7 @@ func TopicsHandler(w http.ResponseWriter, r *http.Request) {
 	if len(parts) == 1 {
 		id, err := strconv.Atoi(parts[0])
 		if err != nil {
-			http.Error(w, "Invalid Topic ID", 400)
+			http.Error(w, "Method not allowed", 405)
 			return
 		}
 
@@ -123,7 +123,10 @@ func TopicsHandler(w http.ResponseWriter, r *http.Request) {
 		var posts []models.Post
 		for rows.Next() {
 			var p models.Post
-			rows.Scan(&p.Id, &p.TopicId, &p.Title, &p.Description, &p.Username, &p.CreatedAt)
+			err = rows.Scan(&p.Id, &p.TopicId, &p.Title, &p.Description, &p.Username, &p.CreatedAt)
+			if err != nil {
+				continue
+			}
 			posts = append(posts, p)
 		}
 		w.Header().Set("Content-Type", "application/json")
