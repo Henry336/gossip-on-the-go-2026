@@ -21,15 +21,19 @@ I have reviewed all AI-suggested code to ensure it meets the assignment requirem
 ---
 
 ## 📜 Development History (Proof of Work)
+
 This repository is a **monorepo merge** of my separate development repositories. 
 The complete commit history (showing work done over the assignment period) can be viewed here:
 
 * **Original Backend Repository:** https://github.com/Henry336/forum-backend
 * **Original Frontend Repository:** https://github.com/Henry336/forum-frontend
 
+---
+
 ## How to Run
 
 ### Prerequisites
+
 * Go 1.23+
 * Node.js & npm
 * PostgreSQL
@@ -37,17 +41,20 @@ The complete commit history (showing work done over the assignment period) can b
 ### 1. Database Setup
 
 **1. Open your terminal and log in to Postgres:**
+
 ```bash
 psql -U postgres
 ```
 
 **2. Create the database:**
+
 ```sql
 CREATE DATABASE cvwo_forum;
 \c cvwo_forum
 ```
 
 **3. Run the following SQL commands to set up the schema:**
+
 ```sql
 CREATE TABLE users (
     username VARCHAR(50) PRIMARY KEY
@@ -77,6 +84,7 @@ CREATE TABLE comments (
 ```
 
 **4. Populate initial topics:**
+
 ```sql
 INSERT INTO topics (name) VALUES 
     ('General'), 
@@ -87,18 +95,27 @@ INSERT INTO topics (name) VALUES
 
 ### 2. Backend Setup
 
-From the root folder:
-```bash
-cd backend
-# Note: Ensure database/db.go has your local password configuration
-go mod tidy
-go run main.go
-# Server starts on http://localhost:8080
-```
+1. Create a `.env` file in the `backend` root directory with the following content:
+
+   ```env
+   DATABASE_URL=postgres://postgres:your_password@localhost:5432/cvwo_forum?sslmode=disable
+   ```
+
+   (Note: Replace your_password with your actual local PostgreSQL password)
+
+2. Run the server:
+
+   ```bash
+   cd backend
+   go mod tidy
+   go run main.go
+   # Server starts on http://localhost:8080
+   ```
 
 ### 3. Frontend Setup
 
 From the root folder:
+
 ```bash
 cd frontend
 npm install
@@ -115,7 +132,9 @@ npm run dev
 * User authentication (username-based)
 * Clean Material UI interface
 
+---
+
 ## Tech Stack
 
-**Backend:** Go (standard library), PostgreSQL
+**Backend:** Go (standard library), PostgreSQL  
 **Frontend:** React, TypeScript, Material UI (MUI)
