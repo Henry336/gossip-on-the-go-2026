@@ -41,14 +41,21 @@ func InitDB() {
 	// NTS: This runs automatically when the server starts on Render. (Why? Cuz I couldn't bypass NUS wifi's firewall - and my laptop cannot connect to my mobile hotspot)
 	seedQuery := `
     INSERT INTO users (username) VALUES ('Henry') ON CONFLICT (username) DO NOTHING;
-    INSERT INTO topics (name) VALUES ('General'), ('NUS'), ('Computing'), ('Engineering') ON CONFLICT DO NOTHING;
+    INSERT INTO topics (id, name) VALUES 
+	(1, 'General'), 
+	(2, 'NUS'), 
+	(3, 'Computing'), 
+	(4, 'Engineering') 
+	ON CONFLICT (id) DO UPDATE SET name = EXCLUDED.name; 
+
+	SELECT setval('topics_id_seq', (SELECT MAX(id) FROM topics));
     `
 	_, seedErr := DB.Exec(seedQuery)
 	if seedErr != nil {
 		// NTS: What's happening here? "Log it but don't crash, just in case tables are weird"
 		fmt.Println("Seeding Warning:", seedErr)
 	} else {
-		fmt.Println("✅ DATABASE SUCCESSFULLY SEEDED!")
+		fmt.Println("✅ DATABASE SUCCESSFULLY SEEDED WITH CORRECT IDs!")
 	}
 }
 
